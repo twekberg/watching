@@ -1,0 +1,9 @@
+*.pyc
+*~
+build
+working
+dist
+*-env
+*.egg-info
+.eggs/
+/vault_pass.txt
