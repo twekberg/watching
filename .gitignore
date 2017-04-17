@@ -7,3 +7,4 @@ dist
 *.egg-info
 .eggs/
 /vault_pass.txt
+*.retry
