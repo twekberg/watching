@@ -23,4 +23,11 @@ Create a virtualenv::
 running
 =======
 
-./watch.yml -i hosts --ask-become-pass --extra-vars="users=kimthill" --user=ekberg
+./watch_part1.yml -i hosts --ask-become-pass -v \
+    --extra-vars="users=kimthill" \
+    --user ekberg
+
+./watch_part2.yml -i hosts --ask-become-pass -v \
+    --extra-vars="users=kimthill" \
+    --user tekberg
+

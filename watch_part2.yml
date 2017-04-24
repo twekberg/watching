@@ -10,14 +10,14 @@
         - always
         - ansible-version
 
-- hosts: wiki
+- hosts: apache
   become: yes
 
   tasks:
-    - name: checking wiki
-      script: scripts/check_wiki.sh "{{ users }}"
-      register: wiki_result
+    - name: checking apache
+      script: scripts/check_apache.sh "{{ users }}"
+      register: apache_result
 
-    - debug: msg="{{ wiki_result.stdout }}"
+    - debug: msg="{{ apache_result.stdout }}"
 
-    - local_action: copy content={{ wiki_result.stdout }} dest=/tmp/watch_results.txt
+    - local_action: copy content={{ apache_result.stdout }} dest=/tmp/watch_part2_results.txt
