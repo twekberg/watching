@@ -27,5 +27,8 @@ running
 
 ./watch_part2.yml -i hosts --ask-become-pass -v --user tekberg
 
-The user is prompted for the UWNetIDs. You may want to copy the first
-one to the paste buffer.
+The user is prompted for the UWNetIDs in part1. It is stored in the
+file $HOME/watch_users.txt and read in part2. It only has to be
+entered in part1.
+
+Output is written to $HOME/watch_results.txt.

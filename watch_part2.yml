@@ -13,10 +13,10 @@
 - hosts: apache
   become: yes
 
-  vars_prompt:
-    - name: "users"
-      prompt: "Enter one or more UWNetIds. Use space to separate"
-      private: no
+  # Use the users value stored in part1.
+  vars:
+    - HOME: "{{ lookup('env','HOME') }}"
+    - users: "{{ lookup('file',  HOME + '/watch_results.txt') }}"
 
   tasks:
     - name: checking apache
@@ -34,10 +34,9 @@
 - hosts: tracker
   become: yes
 
-  vars_prompt:
-    - name: "users"
-      prompt: "Enter one or more UWNetIds. Use space to separate"
-      private: no
+  vars:
+    - HOME: "{{ lookup('env','HOME') }}"
+    - users: "{{ lookup('file',  HOME + '/watch_results.txt') }}"
 
   tasks:
     - name: checking tracker

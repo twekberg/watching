@@ -17,6 +17,9 @@ json=no
 for uwnetid in $*; do
     count=0
     echo $uwnetid
+    if [ "$json" = "no" ]; then
+	echo "  Wikis"
+    fi
     # Look in the *Group and *Reviewers* files.
     for current in $(find . '(' -wholename "*/*Group/current" \
 			     -o -wholename "*/*Reviewers*/current" ')' -type f | sort); do
