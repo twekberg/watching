@@ -23,11 +23,9 @@ Create a virtualenv::
 running
 =======
 
-./watch_part1.yml -i hosts --ask-become-pass -v \
-    --extra-vars="users=kimthill" \
-    --user ekberg
+./watch_part1.yml -i hosts --ask-become-pass -v --user ekberg
 
-./watch_part2.yml -i hosts --ask-become-pass -v \
-    --extra-vars="users=kimthill" \
-    --user tekberg
+./watch_part2.yml -i hosts --ask-become-pass -v --user tekberg
 
+The user is prompted for the UWNetIDs. You may want to copy the first
+one to the paste buffer.

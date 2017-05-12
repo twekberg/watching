@@ -8,3 +8,4 @@ dist
 .eggs/
 /vault_pass.txt
 *.retry
+TODO

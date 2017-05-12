@@ -48,7 +48,8 @@ for uwnetid in $*; do
 	rm $grep_out
 	rm $awk_scr
     done
-    admin_page='compstaff/data/pages/SC(2e)DOC(20)Administering(20)Web(20)Applications'
+
+    admin_page='compstaff/data/pages/SC(2e)PR(20)Administering(20)Web(20)Applications'
     page=$(cat "$admin_page/current")
     grep_out=$(mktemp /tmp/wiki-compstaff.XXXXXXXXXX)
     grep -P -c "\b$uwnetid\b" "$admin_page/revisions/$page" > $grep_out
