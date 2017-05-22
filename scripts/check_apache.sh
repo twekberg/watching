@@ -6,7 +6,7 @@
 #
 #-------------------------------------------------------------------------------
 
-json=no
+json=yes
 
 # Output arg1 if json=yes.
 function test_json {
@@ -14,11 +14,22 @@ function test_json {
 	echo $1
     fi
 }
+test_json "["
+first_time="yes"
 for uwnetid in $*; do
-    echo $uwnetid
-    if [ "$json" = "no" ]; then
+    comma=
+    if [ "$first_time" = "no" ]; then
+	comma=","
+    fi
+    test_json "$comma{"
+    first_time="no"
+    if [ "$json" = "yes" ]; then
+	echo "\"uwnetid\": \"$uwnetid\""
+    else
+	echo "$uwnetid"
 	echo "  Apache groups"
     fi
+
     test_json ",\"apache\": ["
 
     # Implementation note: all calls to mktemp have their own name in case
@@ -45,5 +56,6 @@ for uwnetid in $*; do
 	fi
     fi
     test_json "]"
+    test_json "}"
     rm $grep_out
 done

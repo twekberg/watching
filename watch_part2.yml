@@ -16,7 +16,7 @@
   # Use the users value stored in part1.
   vars:
     - HOME: "{{ lookup('env','HOME') }}"
-    - users: "{{ lookup('file',  HOME + '/watch_results.txt') }}"
+    - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
 
   tasks:
     - name: checking apache
@@ -27,16 +27,16 @@
 
     - local_action: blockinfile \
         block="{{ apache_result.stdout }}" \
-        path="/tmp/watch_results.txt" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
         create=yes \
         marker=""
 
-- hosts: tracker
+- hosts: tr
   become: yes
 
   vars:
     - HOME: "{{ lookup('env','HOME') }}"
-    - users: "{{ lookup('file',  HOME + '/watch_results.txt') }}"
+    - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
 
   tasks:
     - name: checking tracker
@@ -47,5 +47,12 @@
 
     - local_action: blockinfile \
         block="{{ tracker_result.stdout }}" \
-        path="/tmp/watch_results.txt"  \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
         marker=""
+
+    - local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
+
+    - local_action: shell  scripts/combine_results.py \
+        "{{ HOME + '/preliminary_watch_results.txt' }}" \
+        > "{{ HOME + '/watch_results.txt' }}"
+      tags: last

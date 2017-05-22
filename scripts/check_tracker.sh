@@ -6,7 +6,7 @@
 #
 #-------------------------------------------------------------------------------
 
-json=no
+json=yes
 
 # Output arg1 if json=yes.
 function test_json {
@@ -15,17 +15,19 @@ function test_json {
     fi
 }
 db_host='db1.labmed.washington.edu'
-count=0
 
 for uwnetid in $*; do
-    echo $uwnetid
+    count=0
     if [ ! -d /var/www/html/it ]; then
 	if [ "$json" = "no" ]; then
             echo "    >> Log into tracker host to check tracker users."
 	fi
         return 0
     fi
-    if [ "$json" = "no" ]; then
+    test_json ",{"
+    if [ "$json" = "yes" ]; then
+	echo "\"uwnetid\": \"$uwnetid\""
+    else
 	echo "  Trackers"
     fi
     test_json ",\"tracker\": {\"users\": ["
@@ -96,10 +98,11 @@ for uwnetid in $*; do
 	    fi
         fi
     done
+    test_json "]"		# Close off "page_references" list
     if [ $count -eq 0 ]; then
 	if [ "$json" = "no" ]; then
             echo "    No access"
 	fi
     fi
-    test_json "]}"
+    test_json "}}"
 done

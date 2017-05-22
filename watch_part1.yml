@@ -30,7 +30,7 @@
 
     - debug: msg="{{ wiki_result.stdout }}"
 
-    - local_action: copy content={{ wiki_result.stdout }} dest="{{ HOME }}/watch_results.txt"
+    - local_action: copy content={{ wiki_result.stdout }} dest="{{ HOME }}/preliminary_watch_results.txt"
 
     # Save users so we don't have to enter it again in part2.
     - local_action: copy content="{{ users }}" dest="{{ HOME }}/watch_users.txt"

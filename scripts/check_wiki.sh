@@ -12,14 +12,18 @@ function test_json {
 }
 
 cd /home/moinmoin
-json=no
+json=yes
 
 for uwnetid in $*; do
     count=0
-    echo $uwnetid
-    if [ "$json" = "no" ]; then
+    test_json ",{"
+    if [ "$json" = "yes" ]; then
+	echo "\"uwnetid\": \"$uwnetid\""
+    else
+	echo $uwnetid
 	echo "  Wikis"
     fi
+    test_json ",\"wiki\": ["
     # Look in the *Group and *Reviewers* files.
     for current in $(find . '(' -wholename "*/*Group/current" \
 			     -o -wholename "*/*Reviewers*/current" ')' -type f | sort); do
@@ -95,7 +99,7 @@ for uwnetid in $*; do
 	rm $grep_out
     fi
     test_json "]"
-
+    test_json "}"
     if [ $count -eq 0 ]; then
 	if [ "$json" = "no" ]; then
 	    echo "    No access"
