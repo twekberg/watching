@@ -42,17 +42,46 @@
     - name: checking tracker
       script: scripts/check_tracker.sh "{{ users }}"
       register: tracker_result
+      tags: tracker
 
     - debug: msg="{{ tracker_result.stdout }}"
+      tags: tracker
 
     - local_action: blockinfile \
         block="{{ tracker_result.stdout }}" \
         path="{{ HOME + '/preliminary_watch_results.txt' }}" \
         marker=""
+      tags: tracker
 
-    - local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
+#    - local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
+#      tags: tracker
+
+#    - local_action: shell  scripts/combine_results.py \
+#        "{{ HOME + '/preliminary_watch_results.txt' }}" \
+#        > "{{ HOME + '/watch_results.txt' }}"
+#      tags: tracker
+
+    - name: residents
+      script: scripts/check_residents.sh "{{ users }}"
+      register: residents_result
+      tags: residents
+
+    - debug: msg="{{ residents_result.stdout }}"
+      tags: residents
+
+    - name: copy residents details locally
+      local_action: blockinfile \
+        block="{{ residents_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: residents
+
+    - name: close off residents json
+      local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
+      tags: residents
 
     - local_action: shell  scripts/combine_results.py \
         "{{ HOME + '/preliminary_watch_results.txt' }}" \
         > "{{ HOME + '/watch_results.txt' }}"
-      tags: last
+      tags: residents
+
