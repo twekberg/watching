@@ -53,20 +53,9 @@
         marker=""
       tags: tracker
 
-#    - local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
-#      tags: tracker
-
-#    - local_action: shell  scripts/combine_results.py \
-#        "{{ HOME + '/preliminary_watch_results.txt' }}" \
-#        > "{{ HOME + '/watch_results.txt' }}"
-#      tags: tracker
-
     - name: residents
       script: scripts/check_residents.sh "{{ users }}"
       register: residents_result
-      tags: residents
-
-    - debug: msg="{{ residents_result.stdout }}"
       tags: residents
 
     - name: copy residents details locally
@@ -76,12 +65,23 @@
         marker=""
       tags: residents
 
-    - name: close off residents json
+    - name: db1
+      script: scripts/check_db1.sh "{{ users }}"
+      register: db1_result
+      tags: db1
+
+    - name: copy db1 details locally
+      local_action: blockinfile \
+        block="{{ db1_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: db1
+
+    - name: close off db1 json
       local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
-      tags: residents
+      tags: db1
 
     - local_action: shell  scripts/combine_results.py \
         "{{ HOME + '/preliminary_watch_results.txt' }}" \
         > "{{ HOME + '/watch_results.txt' }}"
-      tags: residents
-
+      tags: db1
