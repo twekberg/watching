@@ -77,11 +77,46 @@
         marker=""
       tags: db1
 
-    - name: close off db1 json
+    - name: temp file for bitbucket
+      local_action: tempfile
+        suffix="_wget"
+      register: bb_temp
+
+    - name: bb_temp owner and mode
+      local_action: file
+        path="{{ bb_temp.path }}"
+        mode=0644
+        owner=tekberg
+        group=tekberg
+        
+    - name: retrieve bitbucket user list
+      local_action: get_url
+        url="https://api.bitbucket.org/2.0/teams/uwlabmed/members?pagelen=100"
+        dest="{{ bb_temp.path }}"
+        force=yes
+
+    - name: check bitbucket
+      local_action: script scripts/check_bitbucket.sh "{{bb_temp.path}}" "{{ users }}"
+      register: bitbucket_result
+      tags: bitbucket
+
+    - name: cleanup bitbucket tmp file
+      local_action: file
+        state=absent
+        path="{{ bb_temp.path }}"
+
+    - name: copy bitbucket details locally
+      local_action: blockinfile \
+        block="{{ bitbucket_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: bitbucket
+
+    - name: close off bitbucket json
       local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
-      tags: db1
+      tags: bitbucket
 
     - local_action: shell  scripts/combine_results.py \
         "{{ HOME + '/preliminary_watch_results.txt' }}" \
         > "{{ HOME + '/watch_results.txt' }}"
-      tags: db1
+      tags: bitbucket
