@@ -16,16 +16,16 @@ virtualenv, and setuptools.
 
 Create a virtualenv::
 
-  virtualenv watching-env
-  source watching-env/bin/activate
-  pip install -r requirements.txt
+    virtualenv watching-env
+    source watching-env/bin/activate
+    pip install -r requirements.txt
 
 running
 =======
 
-./watch_part1.yml -i hosts --ask-become-pass -v --user ekberg
+    ./watch_part1.yml -i hosts --ask-become-pass -v --user ekberg
 
-./watch_part2.yml -i hosts --ask-become-pass -v --user tekberg
+    ./watch_part2.yml -i hosts --ask-become-pass -v --user tekberg
 
 The user is prompted for the UWNetIDs in part1. It is stored in the
 file $HOME/watch_users.txt and read in part2. It only has to be
