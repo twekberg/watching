@@ -22,9 +22,8 @@ for uwnetid in $*; do
     if [ "$json" = "yes" ]; then
 	echo "\"uwnetid\": \"$uwnetid\""
     else
-	echo "  Trackers"
+	echo "  residents"
     fi
-    test_json ",\"residents_db\": {\"users\": ["
 
     sql_out=$(mktemp /tmp/residents.XXXXXXXXXX)
     sql="SELECT id,networkid,auth_level FROM users WHERE networkid='$uwnetid';"
@@ -35,7 +34,9 @@ for uwnetid in $*; do
                                       {
                                         if ($1 != "") {
                                           gsub(/ /, "", $2);
-                                          printf("{\"id\":%s, \"user\":\"%s\", \"auth_level\":%s}\n", $1, $2, $3)
+                                          print ",\"residents_db\": {"
+                                          printf("\"id\":%s, \"user\":\"%s\", \"auth_level\":%s\n", $1, $2, $3)
+                                          print "}"
                                         }
                                       }'
 	    count=`expr $count \+ 1`
@@ -49,10 +50,10 @@ for uwnetid in $*; do
     rm $sql_out
     if [ $count -eq 0 ]; then
 	if [ "$json" = "yes" ]; then
-	    echo "{}"
+	    echo ",\"residents_db\": null"
 	else
             echo "    No access"
 	fi
     fi
-    test_json "]}}"
+    test_json "}"
 done
