@@ -16,8 +16,8 @@ virtualenv, and setuptools.
 
 Create a virtualenv::
 
-  virtualenv hud-env
-  source hud-env/bin/activate
+  virtualenv watching-env
+  source watching-env/bin/activate
   pip install -r requirements.txt
 
 running
