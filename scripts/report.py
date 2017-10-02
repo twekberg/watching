@@ -6,6 +6,7 @@ Generate report from the JSON file.
 import argparse
 import json
 import sys
+import itertools
 
 def build_parser(parser):
     parser.add_argument('-i', '--json-input-file', type=argparse.FileType(),
@@ -18,31 +19,61 @@ class Reporter(object):
         self.file = args.json_input_file
 
     def display(self):
+        """
+        Display details about users. Capture 'no access' as a special case.
+        """
         j = json.load(self.file)
         for user in sorted(j.keys()):
             print user
+            user_details = []
             for pack in sorted(j[user].keys()):
                 sub = j[user][pack]
                 if type(sub) == type({}):
-                    print "  %s" % (pack,)
+                    user_details.append("  %s" % (pack,))
                     for k in sorted(j[user][pack].keys()):
                         subsub = j[user][pack][k]
                         if type(subsub) == type([]):
-                            print "    %s" % (k,)
+                            user_details.append("    %s" % (k,))
                             for kk in sorted(subsub):
                                 if type(kk) == type({}):
                                     for kkk in sorted(kk.keys()):
-                                        print "      %s" % (kkk,)
+                                        user_details.append("      %s" % (kkk,))
                                 else:
-                                    print "      %s" % (kk,)
+                                    user_details.append("      %s" % (kk,))
                         else:
-                            print "    %s: %s" % (k, j[user][pack][k])
+                            user_details.append("    %s: %s" % (k, j[user][pack][k]))
                 elif type(sub) == type([]): 
-                    print "  %s" % (pack,)
+                    user_details.append("  %s" % (pack,))
                     for ele in sub:
-                        print "    %s" % (ele,)
+                        user_details.append("    %s" % (ele,))
                 else:
-                    print "  %s: %s" % (pack, sub)
+                    user_details.append("  %s: %s" % (pack, sub))
+            if self.is_empty(user_details):
+                print "  No access"
+            else:
+                for line in user_details:
+                    print line
+
+
+    def is_empty(self, user_details):
+        """
+        Check for the case where the user has no access.
+        """
+        for (expected, got) in itertools.izip_longest(['  apache',
+                     '  bitbucket',
+                     '    bitbucket_team_member: False',
+                     '  db1_hba_conf: False',
+                     '  db1_mysql_user: False',
+                     '  db1_pg_user: False',
+                     '  residents_db: None',
+                     '  tracker',
+                     '    page_references',
+                     '    users',
+                     '  wiki'], user_details):
+            if expected != got:
+                return False
+        return True
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)

@@ -79,7 +79,7 @@ function check_db1_hba {
     ssh -T transfers@$db_host > $grep_out <<EOF
 grep -P -c "\b$uwnetid\b" /var/lib/pgsql/data/pg_hba.conf 2> /dev/null
 EOF
-    if [ $(cat $grep_out | tail -1) -gt 0 ]; then
+    if [[ -s $grep_out && $(cat $grep_out | tail -1) -gt 0 ]]; then
 	if [ "$json" = "yes" ]; then
 	    echo "\"db1_hba_conf\": true"
 	else

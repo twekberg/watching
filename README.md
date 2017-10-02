@@ -31,4 +31,5 @@ The user is prompted for the UWNetIDs in part1. It is stored in the
 file $HOME/watch_users.txt and read in part2. It only has to be
 entered in part1.
 
-Output is written to $HOME/watch_results.txt.
+Output is written to $HOME/watch_results.txt, which is a JSON file.
+Run scripts/report.py to display the report.
