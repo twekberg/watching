@@ -1,0 +1,146 @@
+#!/usr/bin/env ansible-playbook
+
+- hosts: localhost
+  become: no
+
+  tasks:
+    - fail: msg="ansible version is {{ ansible_version['full'] }}, requires >= 2.1"
+      when: ansible_version['full'] | version_compare('2.1', '<')
+      tags:
+        - always
+        - ansible-version
+
+- hosts: wiki
+  become: yes
+
+  vars:
+    - HOME: "{{ lookup('env','HOME') }}"
+
+  vars_prompt:
+    - name: "users"
+      prompt: "Enter one or more UWNetIds. Use space to separate"
+      private: no
+
+  tasks:
+    - debug: msg="users={{ users }}, HOME={{ HOME }}"
+
+    - name: checking wiki
+      script: scripts/check_wiki.sh "{{ users }}"
+      register: wiki_result
+
+    - debug: msg="{{ wiki_result.stdout }}"
+
+    - local_action: copy content={{ wiki_result.stdout }} dest="{{ HOME }}/preliminary_watch_results.txt"
+    # Save users so we don't have to enter it again.
+    - local_action: copy content="{{ users }}" dest="{{ HOME }}/watch_users.txt"
+
+- hosts: apache
+  become: yes
+
+  # Use the users value stored in the first task.
+  vars:
+    - HOME: "{{ lookup('env','HOME') }}"
+    - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
+
+  tasks:
+    - name: checking apache
+      script: scripts/check_apache.sh "{{ users }}"
+      register: apache_result
+
+    - debug: msg="{{ apache_result.stdout }}"
+
+    - local_action: blockinfile \
+        block="{{ apache_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        create=yes \
+        marker=""
+
+- hosts: tr
+  become: yes
+
+  vars:
+    - HOME: "{{ lookup('env','HOME') }}"
+    - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
+
+  tasks:
+    - name: checking tracker
+      script: scripts/check_tracker.sh "{{ users }}"
+      register: tracker_result
+      tags: tracker
+
+    - debug: msg="{{ tracker_result.stdout }}"
+      tags: tracker
+
+    - local_action: blockinfile \
+        block="{{ tracker_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: tracker
+
+    - name: residents
+      script: scripts/check_residents.sh "{{ users }}"
+      register: residents_result
+      tags: residents
+
+    - name: copy residents details locally
+      local_action: blockinfile \
+        block="{{ residents_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: residents
+
+    - name: db1
+      script: scripts/check_db1.sh "{{ users }}"
+      register: db1_result
+      tags: db1
+
+    - name: copy db1 details locally
+      local_action: blockinfile \
+        block="{{ db1_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: db1
+
+    - name: temp file for bitbucket
+      local_action: tempfile
+        suffix="_wget"
+      register: bb_temp
+
+    - name: bb_temp owner and mode
+      local_action: file
+        path="{{ bb_temp.path }}"
+        mode=0644
+        owner=tekberg
+        group=tekberg
+        
+    - name: retrieve bitbucket user list
+      local_action: get_url
+        url="https://api.bitbucket.org/2.0/teams/uwlabmed/members?pagelen=100"
+        dest="{{ bb_temp.path }}"
+        force=yes
+
+    - name: check bitbucket
+      local_action: script scripts/check_bitbucket.sh "{{bb_temp.path}}" "{{ users }}"
+      register: bitbucket_result
+      tags: bitbucket
+
+    - name: cleanup bitbucket tmp file
+      local_action: file
+        state=absent
+        path="{{ bb_temp.path }}"
+
+    - name: copy bitbucket details locally
+      local_action: blockinfile \
+        block="{{ bitbucket_result.stdout }}" \
+        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+        marker=""
+      tags: bitbucket
+
+    - name: close off bitbucket json
+      local_action: shell echo "]" >> "{{ HOME + '/preliminary_watch_results.txt' }}"
+      tags: bitbucket
+
+    - local_action: shell  scripts/combine_results.py \
+        "{{ HOME + '/preliminary_watch_results.txt' }}" \
+        > "{{ HOME + '/watch_results.txt' }}"
+      tags: bitbucket

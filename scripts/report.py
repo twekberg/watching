@@ -37,7 +37,7 @@ class Reporter(object):
                             for kk in sorted(subsub):
                                 if type(kk) == type({}):
                                     for kkk in sorted(kk.keys()):
-                                        user_details.append("      %s" % (kkk,))
+                                        user_details.append("      %s: %s" % (kkk, kk[kkk]))
                                 else:
                                     user_details.append("      %s" % (kk,))
                         else:

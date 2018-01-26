@@ -9,3 +9,4 @@ dist
 /vault_pass.txt
 *.retry
 TODO
+[#]*

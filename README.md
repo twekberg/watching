@@ -23,6 +23,12 @@ Create a virtualenv::
 running
 =======
 
+If your user name is the same for all systems use this::
+
+    ./watch.yml -i hosts --ask-become-pass -v
+
+Use these if your username on the wiki differs from the other hosts::
+
     ./watch_part1.yml -i hosts --ask-become-pass -v --user ekberg
 
     ./watch_part2.yml -i hosts --ask-become-pass -v --user tekberg
