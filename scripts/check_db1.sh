@@ -26,7 +26,7 @@ function check_db1_mysql_user {
 	source=$(mktemp /tmp/db1-my.XXXXXXXXXX)
 	echo "SELECT \`User\` FROM \`user\` WHERE \`User\` = '$uwnetid';" > $source
 	my_out=$(mktemp /tmp/db1-out.XXXXXXXXXX)
-	mysql -u $db_user --password=$db_password --database=$db_name -h $db_host --execute "source $source" > $my_out
+	mysql -u $db_user --password=$db_password --database=$db_name --execute "source $source" > $my_out
 	if [ -s $my_out ]; then
 	    if [ "$json" = "yes" ]; then
 		echo "\"db1_mysql_user\": true,"
