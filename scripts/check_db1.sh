@@ -21,7 +21,7 @@ function check_db1_mysql_user {
 	echo "Unable to check db1 mysql users"
     else
 	db_user=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f4)
-	db_password=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f7 | cut -d= -f2)
+	db_password=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f5 | cut -d= -f2)
 	db_name=mysql
 	source=$(mktemp /tmp/db1-my.XXXXXXXXXX)
 	echo "SELECT \`User\` FROM \`user\` WHERE \`User\` = '$uwnetid';" > $source
