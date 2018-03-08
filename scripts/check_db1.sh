@@ -5,6 +5,14 @@
 # Should be run on tracker.
 #
 #-------------------------------------------------------------------------------
+logging=yes
+# Append timestamp and arg1 to log file if logging=yes, 
+function log {
+    if [ "$logging" = "yes" ]; then
+	echo "$(date +%Y-%m-%d.%H:%M:%S) $1" >> /tmp/watch-log.txt
+    fi
+}
+log "Start"
 
 json=yes
 
@@ -17,16 +25,18 @@ function test_json {
 db_host='db1.labmed.washington.edu'
 
 function check_db1_mysql_user {
+    log "Enter check_db1_mysql_user"
      if [ ! -f /home/tekberg/.bashrc -o $(grep myvir /home/tekberg/.bashrc | wc -l) -eq 0 ]; then
 	echo "Unable to check db1 mysql users"
     else
 	db_user=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f4)
-	db_password=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f5 | cut -d= -f2)
+	db_host=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f6)
+	db_password=$(grep myvir /home/tekberg/.bashrc | cut '-d ' -f7 | cut -d= -f2)
 	db_name=mysql
 	source=$(mktemp /tmp/db1-my.XXXXXXXXXX)
 	echo "SELECT \`User\` FROM \`user\` WHERE \`User\` = '$uwnetid';" > $source
 	my_out=$(mktemp /tmp/db1-out.XXXXXXXXXX)
-	mysql -u $db_user --password=$db_password --database=$db_name --execute "source $source" > $my_out
+	mysql -u $db_user -h $db_host --password=$db_password --database=$db_name --execute "source $source" > $my_out
 	if [ -s $my_out ]; then
 	    if [ "$json" = "yes" ]; then
 		echo "\"db1_mysql_user\": true,"
@@ -43,9 +53,11 @@ function check_db1_mysql_user {
 	rm $source
 	rm $my_out
     fi
+    log "Exit check_db1_mysql_user"
 }
 
 function check_db1_pg_user {
+    log "Enter check_db1_pg_user"
     count=0
     sql_out=$(mktemp /tmp/db1-pg-user.XXXXXXXXXX)
     sql="SELECT usename FROM pg_catalog.pg_user WHERE usename='$uwnetid';"
@@ -66,9 +78,11 @@ function check_db1_pg_user {
             echo "      No access"
 	fi
     fi
+    log "Exit check_db1_pg_user"
 }
 
 function check_db1_hba {
+    log "Enter check_db1_hba"
     if [ "$json" = "no" ]; then
 	echo "    pg_hba.conf"
     fi
@@ -76,9 +90,11 @@ function check_db1_hba {
     cd /home/transfers
     . ssh-agent-env.txt
     grep_out=$(mktemp /tmp/db1-hba.XXXXXXXXXX)
+    log 'before ssh -T transfers@$db_host'
     ssh -T transfers@$db_host > $grep_out <<EOF
 grep -P -c "\b$uwnetid\b" /var/lib/pgsql/data/pg_hba.conf 2> /dev/null
 EOF
+    log 'after ssh -T transfers@$db_host'
     if [[ -s $grep_out && $(cat $grep_out | tail -1) -gt 0 ]]; then
 	if [ "$json" = "yes" ]; then
 	    echo "\"db1_hba_conf\": true"
@@ -93,9 +109,14 @@ EOF
 	fi
     fi
     rm $grep_out
+    log "Exit check_db1_hba"
 }
 
+# Turn off history substitution. The password contains an !.
+set +H
+log "Before loop"
 for uwnetid in $*; do
+    log "Working on $uwnetid"
     count=0
     test_json ",{"
     if [ "$json" = "yes" ]; then
@@ -108,4 +129,5 @@ for uwnetid in $*; do
     check_db1_hba
     test_json "}"
 done
+log "Complete"
 
