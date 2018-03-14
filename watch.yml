@@ -63,8 +63,17 @@
     - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
 
   tasks:
-    - name: checking tracker
-      script: scripts/check_tracker.sh "{{ users }}"
+    # Couldn't run this using the script module since it would hang. Instead it
+    # is copied to the tracker host and run there.
+    - name: copy check_tracker.sh to tracker host
+      copy:
+        src=scripts/check_tracker.sh
+        dest=/tmp/check_tracker.sh
+        mode=0755
+      tags: tracker
+
+    - name: execute check_tracker.sh
+      command: /tmp/check_tracker.sh "{{ users }}"
       register: tracker_result
       tags: tracker
 

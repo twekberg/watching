@@ -5,7 +5,7 @@
 # Should be run on tracker.
 #
 #-------------------------------------------------------------------------------
-logging=yes
+logging=no
 # Append timestamp and arg1 to log file if logging=yes, 
 function log {
     if [ "$logging" = "yes" ]; then
