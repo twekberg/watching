@@ -93,8 +93,13 @@ for uwnetid in $*; do
     done
     test_json "], \"page_references\": ["
     # Look at the automatic nosy list.
-    grep "nosy_people.*$uwnetid" /var/www/html/*/detectors/nosy-issue-people.py | \
-        awk '{print "    "$0}'
+    if [ "$json" = "yes" ]; then
+	grep "nosy_people.*$uwnetid" /var/www/html/*/detectors/nosy-issue-people.py | \
+            awk '{print "\""$0"\","}'
+    else
+	grep "nosy_people.*$uwnetid" /var/www/html/*/detectors/nosy-issue-people.py | \
+            awk '{print "    "$0}'
+    fi
     # Look at the ulist variable in some trackers. This is a hardcoded list of some UWNetIDs.
     first="yes"
     for tracker in `echo 'it'; echo 'it_test'`; do
