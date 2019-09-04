@@ -86,31 +86,33 @@
         marker=""
       tags: tracker
 
-    - name: residents
-      script: scripts/check_residents.sh "{{ users }}"
-      register: residents_result
-      tags: residents
-
-    - name: copy residents details locally
-      local_action: blockinfile \
-        block="{{ residents_result.stdout }}" \
-        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
-        marker=""
-      tags: residents
-
-    - name: db1
-      script: scripts/check_db1.sh "{{ users }}"
-      register: db1_result
-      tags: db1
-
-    - name: copy db1 details locally
-      local_action: blockinfile \
-        block="{{ db1_result.stdout }}" \
-        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
-        marker=""
-      tags: db1
-
-
+# residents.labmed.washington.edu is no more
+# long live calldb.labmed.uw.edu
+#    - name: residents
+#      script: scripts/check_residents.sh "{{ users }}"
+#      register: residents_result
+#      tags: residents
+#
+#    - name: copy residents details locally
+#      local_action: blockinfile \
+#        block="{{ residents_result.stdout }}" \
+#        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+#        marker=""
+#      tags: residents
+#
+# No databases on db1 any more
+#    - name: db1
+#      script: scripts/check_db1.sh "{{ users }}"
+#      register: db1_result
+#      tags: db1
+#
+#    - name: copy db1 details locally
+#      local_action: blockinfile \
+#        block="{{ db1_result.stdout }}" \
+#        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+#        marker=""
+#      tags: db1
+#
 # Unable to use wget to retrieve bitbucket user list. Might as well turn this off.
 #    - name: temp file for bitbucket
 #      local_action: tempfile

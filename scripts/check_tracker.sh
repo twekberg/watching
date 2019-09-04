@@ -2,7 +2,7 @@
 #
 # Look at the database for a tracker user.
 #
-# Should be run on tracker.
+# Should be run on tracker host.
 #
 #-------------------------------------------------------------------------------
 logging=no
@@ -24,12 +24,14 @@ function test_json {
 }
 # This host has all of the trackers so we can
 # do a query there to find them.
-db_host='db1.labmed.washington.edu'
+db_host='db3.labmed.uw.edu'
+
+TRACKER_HOME=/mnt/trackers
 
 for uwnetid in $*; do
     log "working on user $uwnetid"
     count=0
-    if [ ! -d /var/www/html/it ]; then
+    if [ ! -d $TRACKER_HOME/it ]; then
 	if [ "$json" = "no" ]; then
             echo "    >> Log into tracker host to check tracker users."
 	fi
@@ -50,18 +52,18 @@ for uwnetid in $*; do
       grep ' roundup ' | \
       cut '-d ' -f2`; do
 	# Locate the config.ini file. Some have it in the chem/ directory.
-	if [ -f /var/www/html/$db/config.ini ]; then
-	    config=/var/www/html/$db/config.ini
+	if [ -f $TRACKER_HOME/$db/config.ini ]; then
+	    config=$TRACKER_HOME/$db/config.ini
 	else
-	    if [ -f /var/www/html/chem/$db/config.ini ]; then
-		config=/var/www/html/chem/$db/config.ini
+	    if [ -f $TRACKER_HOME/chem/$db/config.ini ]; then
+		config=$TRACKER_HOME/chem/$db/config.ini
 	    else
 		echo "Unable to find config.ini for $db" > /dev/stderr
 		continue
 	    fi
 	fi
 	# This is the DB host used by the tracker.
-	tracker_db_host=$(grep 'host = ' $config |grep -P -v '^#'|grep -v tracker.labmed.uw.edu|cut '-d ' -f3)
+	tracker_db_host=$(grep '^host = ' $config |grep -P -v '^#'|grep -v localhost|cut '-d ' -f3)
 	maybe_db_host=$(grep $tracker_db_host /etc/hosts | awk '{print $2}')
 	if [ "$maybe_db_host" = "" ]; then
 	  # Translate that host, which could be an IP address or ssh alias into a
@@ -91,58 +93,7 @@ for uwnetid in $*; do
 	fi
         rm $sql_out
     done
-    test_json "], \"page_references\": ["
-    # Look at the automatic nosy list.
-    if [ "$json" = "yes" ]; then
-	grep "nosy_people.*$uwnetid" /var/www/html/*/detectors/nosy-issue-people.py | \
-            awk '{print "\""$0"\","}'
-    else
-	grep "nosy_people.*$uwnetid" /var/www/html/*/detectors/nosy-issue-people.py | \
-            awk '{print "    "$0}'
-    fi
-    # Look at the ulist variable in some trackers. This is a hardcoded list of some UWNetIDs.
-    first="yes"
-    for tracker in `echo 'it'; echo 'it_test'`; do
-        for user_list in `echo 'ulist'; echo 'cast_list'`; do
-            grep "$user_list python" /var/www/html/$tracker/html/page.html | grep -P "\s$uwnetid'|'$uwnetid\s|\s$uwnetid\s" > /dev/null
-            status=$?
-            if [ $status -eq 0 ]; then
-                # Found a match there.
-                count=`expr $count \+ 1`
-		if [ "$json" = "yes" ]; then
-		    if [ "$first" = "yes" ]; then
-			first=no
-			comma=""
-		    else
-			comma=","
-		    fi
-		    echo "$comma{\"page\": \"page.html\", \"variable\": \"$user_list\", \"tracker\": \"$tracker\"}"
-		else
-                    echo "    page.html $user_list in $tracker tracker"
-		fi
-            fi
-        done
-	# issue.item.html has a user list too.
-        user_list="compstaff_ulist"
-        grep "$user_list python" /var/www/html/$tracker/html/issue.item.html | grep -P "'$uwnetid,|,$uwnetid'|,$uwnetid," > /dev/null
-        status=$?
-        if [ $status -eq 0 ]; then
-            # Found a match there.
-            count=$(expr $count \+ 1)
-	    if [ "$json" = "yes" ]; then
-		if [ "$first" = "yes" ]; then
-		    first=no
-		    comma=""
-		else
-		    comma=","
-		fi
-		echo "$comma{\"page\": \"issue.item.html\", \"variable\": \"$user_list\", \"tracker\": \"$tracker\"}"
-	    else
-		echo "    issue.item.html $user_list in $tracker tracker"
-	    fi
-        fi
-    done
-    test_json "]"		# Close off "page_references" list
+    test_json "]"
     if [ $count -eq 0 ]; then
 	if [ "$json" = "no" ]; then
             echo "    No access"

@@ -60,12 +60,7 @@ class Reporter(object):
         Check for the case where the user has no access.
         """
         for (expected, got) in itertools.izip_longest(['  apache',
-                     '  db1_hba_conf: False',
-                     '  db1_mysql_user: False',
-                     '  db1_pg_user: False',
-                     '  residents_db: None',
                      '  tracker',
-                     '    page_references',
                      '    users',
                      '  wiki'], user_details):
             if expected != got:
