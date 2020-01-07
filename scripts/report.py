@@ -59,7 +59,7 @@ class Reporter(object):
         """
         Check for the case where the user has no access.
         """
-        for (expected, got) in itertools.izip_longest(['  apache',
+        for (expected, got) in itertools.izip_longest([
                      '  tracker',
                      '    users',
                      '  wiki'], user_details):

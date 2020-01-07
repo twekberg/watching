@@ -28,6 +28,8 @@ db_host='db3.labmed.uw.edu'
 
 TRACKER_HOME=/mnt/trackers
 
+test_json "["
+first_time="yes"
 for uwnetid in $*; do
     log "working on user $uwnetid"
     count=0
@@ -37,7 +39,13 @@ for uwnetid in $*; do
 	fi
         return 0
     fi
-    test_json ",{"
+    comma=
+    if [ "$first_time" = "no" ]; then
+	comma=","
+    else
+	first_time="no"
+    fi
+    test_json "$comma{"
     if [ "$json" = "yes" ]; then
 	echo "\"uwnetid\": \"$uwnetid\""
     else
@@ -48,9 +56,7 @@ for uwnetid in $*; do
     log "before tracker db loop"
     # We don't really care about the it tracker. We just need a place to run
     # the --list command.
-    for db in `psql  -U roundup -h $db_host --dbname it --list --quiet --tuples-only | \
-      grep ' roundup ' | \
-      cut '-d ' -f2`; do
+    for db in `cd $TRACKER_HOME;ls -1 |grep -v 'lost+found'|grep -v 'xml-rpc'`; do
 	# Locate the config.ini file. Some have it in the chem/ directory.
 	if [ -f $TRACKER_HOME/$db/config.ini ]; then
 	    config=$TRACKER_HOME/$db/config.ini

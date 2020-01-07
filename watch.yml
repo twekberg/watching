@@ -34,26 +34,26 @@
     # Save users so we don't have to enter it again.
     - local_action: copy content="{{ users }}" dest="{{ HOME }}/watch_users.txt"
 
-- hosts: apache
-  become: yes
-
-  # Use the users value stored in the first task.
-  vars:
-    - HOME: "{{ lookup('env','HOME') }}"
-    - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
-
-  tasks:
-    - name: checking apache
-      script: scripts/check_apache.sh "{{ users }}"
-      register: apache_result
-
-    - debug: msg="{{ apache_result.stdout }}"
-
-    - local_action: blockinfile \
-        block="{{ apache_result.stdout }}" \
-        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
-        create=yes \
-        marker=""
+#- hosts: apache
+#  become: yes
+#
+#  # Use the users value stored in the first task.
+#  vars:
+#    - HOME: "{{ lookup('env','HOME') }}"
+#    - users: "{{ lookup('file',  HOME + '/watch_users.txt') }}"
+#
+#  tasks:
+#    - name: checking apache
+#      script: scripts/check_apache.sh "{{ users }}"
+#      register: apache_result
+#
+#    - debug: msg="{{ apache_result.stdout }}"
+#
+#    - local_action: blockinfile \
+#        block="{{ apache_result.stdout }}" \
+#        path="{{ HOME + '/preliminary_watch_results.txt' }}" \
+#        create=yes \
+#        marker=""
 
 - hosts: tr
   become: yes
