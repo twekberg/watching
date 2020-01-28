@@ -16,6 +16,7 @@ json=yes
 
 for uwnetid in $*; do
     count=0
+    n_times=0
     test_json ",{"
     if [ "$json" = "yes" ]; then
 	echo "\"uwnetid\": \"$uwnetid\""
@@ -100,7 +101,7 @@ for uwnetid in $*; do
     fi
     test_json "]"
     test_json "}"
-    if [ $count -eq 0 ]; then
+    if [ "$count" = "0" ]; then
 	if [ "$json" = "no" ]; then
 	    echo "    No access"
 	fi
