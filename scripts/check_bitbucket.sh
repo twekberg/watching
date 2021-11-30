@@ -40,7 +40,7 @@ for uwnetid in $*; do
     test_json ",\"bitbucket\": {"
 
     bb_out=$(mktemp /tmp/bb-out.XXXXXXXXXX)
-    /usr/bin/python scripts/where-bitbucket.py $uwnetid $bb_json > $bb_out
+    python scripts/where-bitbucket.py $uwnetid $bb_json > $bb_out
     status=$?
     if [ $status -eq 0 ]; then
 	if [ "$json" = "yes" ]; then

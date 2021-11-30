@@ -20,8 +20,8 @@ def main(in_filename):
         for field in watch_result.keys():
             if field != 'uwnetid':
                 results[uwnetid][field] = watch_result[field]
-    print json.dumps(results, sort_keys=True,
-                     indent=4, separators=(',', ': '))
+    print(json.dumps(results, sort_keys=True,
+                     indent=4, separators=(',', ': ')))
 
 if __name__ == '__main__':
     main(sys.argv[1])

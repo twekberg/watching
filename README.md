@@ -16,8 +16,9 @@ virtualenv, and setuptools.
 
 Create a virtualenv::
 
-    virtualenv watching-env
+    python3 -m venv watching-env
     source watching-env/bin/activate
+	pip install -U pip
     pip install -r requirements.txt
 
 running

@@ -42,7 +42,7 @@ def main(uwnetid, json_filename):
         users[user['username']] = user
     bb_username = bb_username_map[uwnetid] if uwnetid in bb_username_map else uwnetid
     if bb_username in users:
-        print '%s %s' % (uwnetid, bb_username)
+        print('%s %s' % (uwnetid, bb_username))
         exit(0)
     else:
         exit(1)
@@ -51,5 +51,5 @@ if __name__ == '__main__':
     try:
         main(sys.argv[1], sys.argv[2])
     except IndexError:
-        print "Usage: python where-bitbucket.py UwNetID json_filename"
+        print("Usage: python where-bitbucket.py UwNetID json_filename")
         exit(2)
